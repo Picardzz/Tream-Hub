@@ -1,20 +1,15 @@
-# Tream-Hub
-A test
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-THIS IS A TEST
-
 local Window = Rayfield:CreateWindow({
-    Name = "Tream Hub",
-    LoadingTitle = "LOADING Interface Suite",
-    LoadingSubtitle = "by Picard",
+    Name = "Test",
+    LoadingTitle = "Rayfield Interface Suite",
+    LoadingSubtitle = "Beta",
     ConfigurationSaving = {
        Enabled = true,
        FolderName = nil, -- Create a custom folder for your hub/game
-       FileName = "Tream Interface"
+       FileName = "Beta"
     },
     Discord = {
-       Enabled = true,
-       Invite = "Y5G5EtUz", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+       Enabled = false,
+       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
        RememberJoins = true -- Set this to false to make them join the discord every time they load it up
     },
     KeySystem = false, -- Set this to true to use our key system
@@ -29,11 +24,10 @@ local Window = Rayfield:CreateWindow({
     }
  })
 
- local Tab = Window:CreateTab("Physics", 4483362458) -- Title, Image
 
  Rayfield:Notify({
-    Title = "Succesfully Loaded Hub",
-    Content = "Notification Content",
+    Title = "Successfully loaded",
+    Content = "",
     Duration = 6.5,
     Image = 4483362458,
     Actions = { -- Notification Buttons
@@ -46,68 +40,93 @@ local Window = Rayfield:CreateWindow({
  },
  })
 
- local Toggle = MainTab:CreateToggle({
-    Name = "Infinite Jump",
+ local Tab = Window:CreateTab("Catch", 4483362458) -- Title, Image
+
+
+ local Toggle = Tab:CreateToggle({
+    Name = "Regular Mags",
     CurrentValue = false,
-    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(InfiniteJumpEnabled)
-        local InfiniteJumpEnabled = true
-        game:GetService("UserInputService").JumpRequest:connect(function()
-            if InfiniteJumpEnabled then
-                game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
-            end
-        end)
+    Flag = "Toggle1",
+    Callback = function(Value)
+       if Value then
+        local player = game.Players.LocalPlayer
+        local rs = game:GetService("RunService")
+        function magBall(ball)
+           if ball and player.Character then
+               firetouchinterest(player.Character["Left Arm"], ball, 0)
+               firetouchinterest(player.Character["Right Arm"], ball, 0)
+               task.wait()
+               firetouchinterest(player.Character["Left Arm"], ball, 1)
+               firetouchinterest(player.Character["Right Arm"], ball, 1)
+           end
+        end
+        --Mag Toggle
+        w2:CreateToggle("Mags", function(bool)
+        shared.Mags = bool
+            rs.Stepped:Connect(function()
+            if shared.Mags then
+               for i,v in pairs(workspace:GetChildren()) do
+                   if v.Name == "Football" and v:IsA("BasePart") then
+                       wait()
+                       local mag = (player.Character.Torso.Position - v.Position).Magnitude
+                       magBall(v)
+        
+                   end
+                en
+       end
+    end,
+ })
+
+ local Slider = Tab:CreateSlider({
+    Name = "Slider Example",
+    Range = {10, 100},
+    Increment = 10,
+    Suffix = "Mags",
+    CurrentValue = 10,
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+    -- The function that takes place when the slider changes
+    -- The variable (Value) is a number which correlates to the value the slider is currently at
     end,
  })
  
+ local DataStoreService = game:GetService("DataStoreService")
+local ConfigurationDataStore = DataStoreService:GetDataStore("Configuration")
 
- local Slider = MainTab:CreateSlider({
-    Name = "Walkspeed",
-    Range = {16, 200},
-    Increment = 10,
-    Suffix = "Walkspeed",
-    CurrentValue = 10,
-    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(v)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
-    end,
- })
-
-
-
- local Slider = MainTab:CreateSlider({
-    Name = "JumpPower",
-    Range = {50, 450},
-    Increment = 10,
-    Suffix = "JumpPower",
-    CurrentValue = 10,
-    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(v)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = v
-    end,
- })
-
- local Toggle = Tab:CreateToggle({
-    Name = "Auto Click",
-    CurrentValue = false,
-    Flag = "Auto Click", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-    shared.["Auto Click"] = x
-    while shared["Auto Click"] do
-        task.wait()
-        if not shared["Auto Click"] then
-             } -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings (
-       end
-       Click()
-    end,
- })
-
- local ColorPicker = Tab:CreateColorPicker({
-    Name = "Colorize",
-    Color = Color3.fromRGB(255,255,255),
-    Flag = "Colorize", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-        -- The function that takes place every time the color picker is moved/changed
-        -- The variable (Value) is a Color3fromRGB value based on which color is selected
-    end
+local Input = Tab:CreateInput({
+   Name = "Input Example",
+   PlaceholderText = "Input Placeholder",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      -- The function that takes place when the input is changed
+      -- The variable (Text) is a string for the value in the text box
+      ConfigurationDataStore:SetAsync("InputExample", Text)
+   end,
 })
+
+-- Load the saved value from the data store
+local SavedValue = ConfigurationDataStore:GetAsync("InputExample")
+if SavedValue then
+   Input:SetText(SavedValue)
+end
+
+local Rayfield = require(game:GetService("ReplicatedStorage").Rayfield)
+
+local RayfieldUI = Rayfield:CreateUI({
+   Name = "Example UI",
+   LayoutOrder = 1,
+})
+
+local Frame = RayfieldUI:AddFrame({
+   Name = "Example Frame",
+   Size = UDim2.new(0, 200, 0, 200),
+})
+
+local Open = false
+
+game:GetService("UserInputService").InputBegan:Connect(function(Input)
+   if Input.KeyCode == Enum.KeyCode.LeftControl then
+      Open = not Open
+      Frame.Visible = Open
+   end
+end)
